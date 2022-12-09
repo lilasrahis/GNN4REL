@@ -22,7 +22,7 @@ The following scripts are required for the conversion:
 
 `./perl_codes/netlist_to_subgraph_directed.pl`: a Perl script that reads one synthesized gate-level netlist at a time (or a number of netlists) in a given dataset and converts the dataset into a single graph. It assigns unique numerical IDs (0 to N-1) to the nodes (gates). N represents the total number of nodes (gates) in the dataset. It will create a directory under `../Path_PNA/data/` which includes:
 
-- The extracted features will be dumped in `feat.txt`. The ith line in feat.txt represent the feature vector of the node ID = the ith line in `count.txt`
+- The extracted features will be dumped in `feat.txt`. The ith line in feat.txt represents the feature vector of the node ID = the ith line in `count.txt`
 - The existence of an edge i between two vertices u and v is represented by the entry of ith line in `link.txt`
 - The `cell.txt` file includes the mapping between node IDs and gate instances
 
@@ -34,7 +34,32 @@ The following scripts are required for the conversion:
     $ perl netlist_to_subgraph_directed.pl -i test_adder -f test_adder -m 0 > log_adder.txt
     $ cd ../
     ```
-## Degradation Estimation (Subgraph regression)
+## Degradation Estimation (Subgraph Regression)
+**STA Results and Labels**
+- We build degradation-aware libraries and perform STA. Here, we release the degradation information obtained from STA.
+- The `./Path_PNA/data/degradation_info` direcotry contains the extracted 1000 timing-paths per design and the corresponding delay degradation.
+- For example `./Path_PNA/data/degradation_info/adder` contains the following 4 files:
+    - `paths.txt` the extracted timing paths and corresponding node IDs.
+    - `adder_degradation_std.txt` the STD of the process-variation-induced degradation per path.
+    - `adder_degradation_max.txt` the max process-variation-induced degradation per path.
+    - `adder_degradation_avg.txt` the average process-variation-induced degradation per path.
+
+**Example: Predict the Average Process-Variation-Induced Delay Degradation per Path**
+
+To predict the average process-variation-induced delay degradation per adder path:
+1) Copy the `./Path_PNA/data/degradation_info/adder/paths.txt` to the generated `./Path_PNA/data/test_adder`:
+    ```sh
+    $ cp ./Path_PNA/data/degradation_info/adder/paths.txt ./Path_PNA/data/test_adder/paths.txt
+    ```
+2) Copy the `./Path_PNA/data/degradation_info/adder/adder_degradation_avg.txt` to the generated `./Path_PNA/data/test_adder` as the label file:
+    ```sh
+    $ cp ./Path_PNA/data/degradation_info/adder/adder_degradation_avg.txt ./Path_PNA/data/test_adder/label.txt
+    ```
+3) Train the model and predict. The `./Path_PNA/Main.py` first extracts subgraphs around the timing-paths and then trains a PNA model.
+    ```sh
+    $ cd ./Path_PNA
+    $ python Main.py  --no-parallel  --file-name test_adder --links-name link.txt  --hop 1  --filename Results_adder_average.txt  >  log_adder_average.txt
+    ```
 
 ## Citation and Acknowledgement
 
