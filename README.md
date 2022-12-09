@@ -60,6 +60,7 @@ To predict the average process-variation-induced delay degradation per adder pat
     $ cd ./Path_PNA
     $ python Main.py  --no-parallel  --file-name test_adder --links-name link.txt  --hop 1  --filename Results_adder_average.txt  >  log_adder_average.txt
     ```
+4) The results will be in `Results_adder_average.txt`. Check the testing performance for the best validation loss.
 
 ## Citation and Acknowledgement
 
